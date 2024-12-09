@@ -1,1 +1,93 @@
+# Представим, что некое приложение хранит плейлист песен в двух видах:
+#   * список из кортежа строк и кортежа вещественных чисел
+#   * многострочная строка
+# Каждая песня содержит: название и время звучания.
 
+# Задание
+# 1. Посчитайте общее время звучания n случайных песен, где n - количество запрошенных песен
+# 2. Используйте модули random и datetime. Или любые другие.
+# 3. Решение должно включать функцию, которая в качестве аргумента способна принимать плейлисты разных типов данных
+
+# В результате решением задачи является функция, которая:
+#   * может принимать как первый плейлист, так и второй в качестве аргумента
+#   * принимает параметр n, число. Это количество песен
+#   * возвращает время звучания, как объект времени timedelta, либо строку, либо вещественное число
+# При этом функций в задаче может быть несколько. То есть решение можно разбить на несколько функций.
+# Но результат задачи можно получить вызвав одну функцию!
+# get_duration(playlist: Iterable, n: int) -> Any
+
+import functions
+from functions import get_duration
+playlist_c = (
+"Happy Nation; 3.32",
+"It's My Life; 3.59",
+"Lady(Hear Me Tonight); 5.07",
+"Fields Of Gold; 3.38",
+"The Winner Takes It All; 4.54",
+"Self Control; 4.06",
+"I Shot The Sheriff; 4.57",
+"Don't Give Up; 6.34",
+"Relax, Take It Easy; 4.30",
+"Dancing Queen; 3.36",
+)
+playlist_b = {
+'Портофино': 3.32,
+'Снег': 4.35,
+'Попытка №5': 3.23,
+'Тополиный Пух': 3.53,
+'Если хочешь остаться': 4.48,
+'Зеленоглазое такси': 5.52,
+'Ты не верь слезам': 3.1,
+'Nowhere to Run': 2.58,
+'Салют, Вера': 4.44,
+'Улетаю': 3.24,
+'Опять метель': 3.37,
+}
+print("Для кортежа: ", get_duration(playlist_c, 3)) # Для кортежа
+print("Для словаря: ", get_duration(playlist_b, 3)) # Для словаря
+
+import random
+from datetime import timedelta
+
+def parse_song(song_str):
+    """Функция для парсинга строки песни 'Название; Длительность'."""
+    name, duration = song_str.split('; ')
+    return name.strip(), float(duration.strip())
+
+def calculate_total_time(playlist, n):
+    """Вычисление общей длительности для списка песен."""
+    total_seconds = sum([song[1] for song in playlist])
+    return timedelta(seconds=total_seconds)
+
+def get_random_songs_from_tuple(playlist, n):
+    """Выбор n случайных песен из кортежа строк."""
+    songs = []
+    for _ in range(n):
+        song_str = random.choice(playlist)
+        name, duration = parse_song(song_str)
+        songs.append((name, duration))
+
+    return songs
+
+def get_random_songs_from_dict(playlist, n):
+    """Выбор n случайных песен из словаря."""
+    keys = list(playlist.keys())
+    songs = []
+    for _ in range(n):
+        key = random.choice(keys)
+        duration = playlist[key]
+        songs.append((key, duration))
+
+    return songs
+
+def get_duration(playlist, n):
+    if isinstance(playlist, tuple):
+        # Если плейлист представлен кортежем строк
+        songs = get_random_songs_from_tuple(playlist, n)
+    elif isinstance(playlist, dict):
+        # Если плейлист представлен словарем
+        songs = get_random_songs_from_dict(playlist, n)
+    else:
+        raise ValueError("Неподдерживаемый тип плейлиста")
+
+    return calculate_total_time(songs, n)
